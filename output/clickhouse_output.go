@@ -268,29 +268,6 @@ func newClickhouseOutput(config map[interface{}]interface{}) topology.Output {
 		debug = v.(bool)
 	}
 
-	if v, ok := config["fields"]; ok {
-		for _, f := range v.([]interface{}) {
-			p.fields = append(p.fields, f.(string))
-		}
-	} else {
-		glog.Fatalf("fields must be set in clickhouse output")
-	}
-	if len(p.fields) <= 0 {
-		glog.Fatalf("fields length must be > 0")
-	}
-	p.fieldsLength = len(p.fields)
-
-	fields := make([]string, p.fieldsLength)
-	for i := range fields {
-		fields[i] = fmt.Sprintf(`"%s"`, p.fields[i])
-	}
-	questionMarks := make([]string, p.fieldsLength)
-	for i := 0; i < p.fieldsLength; i++ {
-		questionMarks[i] = "?"
-	}
-	p.query = fmt.Sprintf("INSERT INTO %s (%s) VALUES (%s)", p.table, strings.Join(fields, ","), strings.Join(questionMarks, ","))
-	glog.V(5).Infof("query: %s", p.query)
-
 	connMaxLifetime := 0
 	if v, ok := config["conn_max_life_time"]; ok {
 		connMaxLifetime = v.(int)
@@ -328,6 +305,22 @@ func newClickhouseOutput(config map[interface{}]interface{}) topology.Output {
 	p.dbSelector = NewRRHostSelector(dbsI, 3)
 
 	p.setColumnDefault()
+
+	p.fieldsLength = len(p.desc)
+	fields := make([]string, p.fieldsLength)
+	p.fields = make([]string, p.fieldsLength)
+	k := 0
+	for columnName := range p.desc {
+		fields[k] = fmt.Sprintf(`"%s"`, columnName)
+		p.fields[k] = columnName
+		k++
+	}
+	questionMarks := make([]string, p.fieldsLength)
+	for i := 0; i < p.fieldsLength; i++ {
+		questionMarks[i] = "?"
+	}
+	p.query = fmt.Sprintf("INSERT INTO %s (%s) VALUES (%s)", p.table, strings.Join(fields, ","), strings.Join(questionMarks, ","))
+	glog.V(5).Infof("query: %s", p.query)
 
 	concurrent := 1
 	if v, ok := config["concurrent"]; ok {
