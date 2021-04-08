@@ -4,7 +4,7 @@ hash:=$(shell git rev-parse --short HEAD)
 
 gohangout:
 	mkdir -p build/
-	go build -o build/gohangout
+	go build  -o build/gohangout
 
 all: check
 	@echo $(hash)

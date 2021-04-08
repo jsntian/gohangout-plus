@@ -1,7 +1,6 @@
 package filter
 
 import (
-	"strconv"
 	"unsafe"
 
 	"github.com/childe/gohangout/topology"
@@ -98,36 +97,36 @@ func (plugin *IPIPFilter) Filter(event map[string]interface{}) (map[string]inter
 		return event, false
 	}
 	if plugin.target == "" {
-		event["country_name"] = a[0]
-		event["province_name"] = a[1]
-		event["city_name"] = a[2]
-		if len(a) >= 5 {
-			event["isp"] = a[4]
-		}
-		if len(a) >= 10 {
-			latitude, _ := strconv.ParseFloat(a[5], 10)
-			longitude, _ := strconv.ParseFloat(a[6], 10)
-			event["latitude"] = latitude
-			event["longitude"] = longitude
-			event["location"] = []interface{}{longitude, latitude}
-			event["country_code"] = a[11]
-		}
+		event["country"] = a[0]
+		event["province"] = a[1]
+		event["city"] = a[2]
+		//if len(a) >= 5 {
+		//	event["isp"] = a[4]
+		//}
+		//if len(a) >= 10 {
+		//	latitude, _ := strconv.ParseFloat(a[5], 10)
+		//	longitude, _ := strconv.ParseFloat(a[6], 10)
+		//	event["latitude"] = latitude
+		//	event["longitude"] = longitude
+		//	event["location"] = []interface{}{longitude, latitude}
+		//	event["country_code"] = a[11]
+		//}
 	} else {
 		target := make(map[string]interface{})
-		target["country_name"] = a[0]
-		target["province_name"] = a[1]
-		target["city_name"] = a[2]
-		if len(a) >= 5 {
-			target["isp"] = a[4]
-		}
-		if len(a) >= 10 {
-			latitude, _ := strconv.ParseFloat(a[5], 10)
-			longitude, _ := strconv.ParseFloat(a[6], 10)
-			target["latitude"] = latitude
-			target["longitude"] = longitude
-			target["location"] = []interface{}{longitude, latitude}
-			target["country_code"] = a[11]
-		}
+		target["country"] = a[0]
+		target["province"] = a[1]
+		target["city"] = a[2]
+		//if len(a) >= 5 {
+		//	target["isp"] = a[4]
+		//}
+		//if len(a) >= 10 {
+		//	latitude, _ := strconv.ParseFloat(a[5], 10)
+		//	longitude, _ := strconv.ParseFloat(a[6], 10)
+		//	target["latitude"] = latitude
+		//	target["longitude"] = longitude
+		//	target["location"] = []interface{}{longitude, latitude}
+		//	target["country_code"] = a[11]
+		//}
 		event[plugin.target] = target
 	}
 	return event, true

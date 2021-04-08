@@ -399,7 +399,13 @@ func (c *ClickhouseOutput) innerFlush(events []map[string]interface{}) {
 			args := make([]interface{}, c.fieldsLength)
 			for i, field := range c.fields {
 				if v, ok := event[field]; ok && v != nil {
-					args[i] = v
+					ct := c.desc[field]
+					vv, err := convertCkType(ct.Type, v)
+					if err == nil {
+						args[i] = vv
+					} else {
+						args[i] = v
+					}
 				} else {
 					if vv, ok := c.defaultValue[field]; ok {
 						args[i] = vv
@@ -421,6 +427,99 @@ func (c *ClickhouseOutput) innerFlush(events []map[string]interface{}) {
 		glog.Infof("%d docs has been committed to clickhouse", len(events))
 		return
 	}
+}
+
+func convertCkType(ctype string, v interface{}) (i interface{}, err error) {
+	switch ctype {
+	case "Int32" :
+		vv, e := strconv.ParseInt(v.(json.Number).String(), 10, 32)
+		if e == nil {
+			return vv, nil
+		} else {
+			glog.Fatalf("convertCkType parse default value `%v` error: %v", v, e)
+		}
+	case   "UInt32":
+		vv, e := strconv.ParseUint(v.(json.Number).String(), 10, 32)
+		if e == nil {
+			return vv, nil
+		} else {
+			glog.Fatalf("convertCkType parse default value `%v` error: %v", v, e)
+		}
+	case "Int16":
+		vv, e := strconv.ParseInt(v.(json.Number).String(), 10, 16)
+		if e == nil {
+			return vv, nil
+		} else {
+			glog.Fatalf("convertCkType parse default value `%v` error: %v", v, e)
+		}
+	case "UInt16" :
+		vv, e := strconv.ParseUint(v.(json.Number).String(), 10, 16)
+		if e == nil {
+			return vv, nil
+		} else {
+			glog.Fatalf("convertCkType parse default value `%v` error: %v", v, e)
+		}
+	case "Float32","Decimal32":
+		vv, e := strconv.ParseFloat(v.(json.Number).String(), 32)
+		if e == nil {
+			return vv, nil
+		} else {
+			glog.Fatalf("convertCkType parse default value `%v` error: %v", v, e)
+		}
+	case  "Int8":
+		vv, e := strconv.ParseInt(v.(json.Number).String(), 10, 8)
+		if e == nil {
+			return vv, nil
+		} else {
+			glog.Fatalf("convertCkType parse default value `%v` error: %v", v, e)
+		}
+	case "UInt8" :
+		vv, e := strconv.ParseUint(v.(json.Number).String(), 10, 8)
+		if e == nil {
+			return vv, nil
+		} else {
+			glog.Fatalf("convertCkType parse default value `%v` error: %v", v, e)
+		}
+
+	case "Int64" :
+		vv, e := strconv.ParseInt(v.(json.Number).String(), 10, 64)
+		if e == nil {
+			return vv, nil
+		} else {
+			glog.Fatalf("convertCkType parse default value `%v` error: %v", v, e)
+		}
+	case  "UInt64":
+		vv, e := strconv.ParseUint(v.(json.Number).String(), 10, 64)
+		if e == nil {
+			return vv, nil
+		} else {
+			glog.Fatalf("convertCkType parse default value `%v` error: %v", v, e)
+		}
+
+
+	case "Float64","Decimal64":
+		vv, e := strconv.ParseFloat(v.(json.Number).String(), 64)
+		if e == nil {
+			return vv, nil
+		} else {
+			glog.Fatalf("convertCkType parse default value `%v` error: %v", v, e)
+		}
+	case "Int256" :
+		vv, e := strconv.ParseInt(v.(json.Number).String(), 10, 256)
+		if e == nil {
+			return vv, nil
+		} else {
+			glog.Fatalf("convertCkType parse default value `%v` error: %v", v, e)
+		}
+	case   "UInt256":
+		vv, e := strconv.ParseUint(v.(json.Number).String(), 10, 256)
+		if e == nil {
+			return vv, nil
+		} else {
+			glog.Fatalf("convertCkType parse default value `%v` error: %v", v, e)
+		}
+	}
+	return v, nil
 }
 
 func (c *ClickhouseOutput) flush() {
