@@ -1,3 +1,43 @@
+做了以下优化：
+1. ipip.go中简写了 country_name -> country,province_name -> province,city_name -> city,由于业务不需需，删除了isp、latitude等
+2. 根目下上传了 ipipfree.ipdb 文件
+3. clickhouse_output.go中实现在自动加载表中所有字段，无需在配置文件中配置fields，对json解析时数值类型不匹配的错误，自动根据数据库类型转化(相关代码类型请见clickhouse_output.go432行)，无需再配置文件中使用json:not_usenumber加Convert处理
+  
+kafka to clickhouse配置示例：
+
+inputs:
+    - Kafka:
+        topic:
+          xxxx: 1
+        codec: json  
+        consumer_settings:
+           bootstrap.servers: "xxx:9093"
+           group.id: xxx
+filters:
+    - Remove:
+        fields: [ '@timestamp']
+    - IPIP:
+        src: ip
+        target: ''
+        database: /xxxxx/ipipfree.ipdb
+        type: ipdb
+outputs:
+    - Clickhouse:
+        if:
+          - 'EQ(xxx,"xxxxx")'
+        table: 'xxxx'
+        username: xxx
+        password: xxxxx
+        hosts:
+          - 'tcp://xxxxx.com:9000' 
+        bulk_actions: 1000
+        flush_interval: 30
+        concurrent: 1
+
+
+
+[原仓库](https://github.com/childe/gohangout)
+
 [ENG](https://github.com/childe/gohangout/blob/master/README-EN.md#input)
 
 之前因为 [logstash](https://www.elastic.co/products/logstash) 处理数据的效率比较低, 用 java 模仿 Logstash 写了一个java版本的 [https://github.com/childe/hangout](https://github.com/childe/hangout).  不知道现在 Logstash 效率怎么样了, 很久不用了.
