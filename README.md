@@ -4,7 +4,7 @@
 3. clickhouse_output.go中实现在自动加载表中所有字段，无需在配置文件中配置fields，对json解析时数值类型不匹配的错误，自动根据数据库类型转化(相关代码类型请见clickhouse_output.go432行)，无需再配置文件中使用json:not_usenumber加Convert处理
   
 kafka to clickhouse配置示例：
-
+```
 inputs:
     - Kafka:
         topic:
@@ -33,7 +33,7 @@ outputs:
         bulk_actions: 1000
         flush_interval: 30
         concurrent: 1
-
+```
 
 
 [原仓库](https://github.com/childe/gohangout)
